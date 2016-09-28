@@ -1,0 +1,44 @@
+// ecuacion.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+#include "Math.h"
+
+using namespace std;
+
+void main()
+{
+	float A,B,C,D,X1,X2,X,XI,XR;
+	cout<< "ingrese A: ";
+	cin>> A;
+	if (A==0)
+		cout<<"ERROR";
+	else
+	{
+	cout<< "ingrese B: ";
+	cin>> B;
+	cout<< "ingrese C: ";
+	cin>> C;
+	D=pow(B,2)-4*A*C;
+	if (D>=0)
+		if (D==0)
+		{X=B/(2*A);
+		cout<< "Solucion unica: "<<X;
+		}
+		else 
+		{X1=-B+sqrt(D)/(2*A);
+		X2=-B-sqrt(D)/(2*A);
+		cout<< "Solucion real 1: "<<X1;
+		cout<< "Solucion real 2: "<<X2;
+		}
+	else
+	{XR=-B/(2*A);
+	XI=sqrt(-D)/(2*A);
+	cout<<"solucion imaginaria 1 es: " <<XR<<"+"<<XI<<"i";
+	cout<<"solucion imaginaria 2 es: " <<XR<<"-"<<XI<<"i";
+	}
+	}
+	getch();
+}
