@@ -1,0 +1,78 @@
+// funciones.cpp : Defines the entry point for the console application.
+//Wendy
+
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+
+using namespace std;
+float fsuma (float a, float b);
+float fresta(float a, float b);
+float fmultiplicacion(float a, float b);
+float fdivision(float a, float b);
+
+void main()
+{
+	float a, b, suma, resta, multiplicacion, division; //validacion de la entrada 
+   int opcion;
+	do {
+	cout << "Ingrese a: " ;
+	cin >> a;
+	while((a)>=0);
+	cout << "Ingrese b: " ;
+	cin >> b;
+	}while((b)>=0);
+   do {
+	 cout <<"          MENU  ";
+     cout << "1.- Suma" << endl;
+     cout << "2.- Resta" << endl;
+     cout << "3.- Producto" << endl;
+     cout << "4.- Division" << endl;
+	 cout << "0.- Salir" << endl;
+     cout << "Elige una opcion: " ;
+     cin >> opcion;
+     switch (opcion)
+	 {
+	    case 1: suma=fsuma(a,b);
+			cout<<"la suma es: ";
+		break;
+	    case 2: resta=fresta(a,b);
+			cout<<"la resta es: ";
+		break;
+	    case 3: multiplicacion=fmultiplicacion(a,b);
+			cout<<"la multiplicacion es: ";
+		break;
+	    case 4: division=fdivision(a,b);
+			cout<<"la division es: ";
+		break;
+		case 0: cout << "Salir";
+	    default: cout << "Opcion invalida" << endl;
+    getch();
+	 }
+}while(opcion!=0);
+
+}
+	float fsuma(float a, float b)
+	 {
+		 float r;
+		 r=a+b;
+		 return r;
+	 }
+	 float fresta(float a, float b)
+	 {
+		 float r;
+		 r=a-b;
+		 return r;
+	 }
+	 float fmultiplicacion(float a, float b)
+	 {
+		 float r;
+		 r=a*b;
+		 return r;
+	 }
+	float fdivision (float a, float b)
+	 {
+		 float r;
+		 r=a/b;
+		 return r;
+	 }
