@@ -18,12 +18,12 @@ void main()
 	do {
 	cout << "Ingrese a: " ;
 	cin >> a;
-	while((a)>=0);
+	while((a)<=0);
 	cout << "Ingrese b: " ;
 	cin >> b;
-	}while((b)>=0);
+	}while((b)<=0);
    do {
-	 cout <<"          MENU  ";
+	 cout <<"MENU"<<endl;
      cout << "1.- Suma" << endl;
      cout << "2.- Resta" << endl;
      cout << "3.- Producto" << endl;
@@ -34,16 +34,16 @@ void main()
      switch (opcion)
 	 {
 	    case 1: suma=fsuma(a,b);
-			cout<<"la suma es: ";
+			cout<<"la suma es: "<<suma;
 		break;
 	    case 2: resta=fresta(a,b);
-			cout<<"la resta es: ";
+			cout<<"la resta es: "<<resta;
 		break;
 	    case 3: multiplicacion=fmultiplicacion(a,b);
-			cout<<"la multiplicacion es: ";
+			cout<<"la multiplicacion es: "<<multiplicacion;
 		break;
 	    case 4: division=fdivision(a,b);
-			cout<<"la division es: ";
+			cout<<"la division es: "<<division;
 		break;
 		case 0: cout << "Salir";
 	    default: cout << "Opcion invalida" << endl;
@@ -56,23 +56,3 @@ void main()
 	 {
 		 float r;
 		 r=a+b;
-		 return r;
-	 }
-	 float fresta(float a, float b)
-	 {
-		 float r;
-		 r=a-b;
-		 return r;
-	 }
-	 float fmultiplicacion(float a, float b)
-	 {
-		 float r;
-		 r=a*b;
-		 return r;
-	 }
-	float fdivision (float a, float b)
-	 {
-		 float r;
-		 r=a/b;
-		 return r;
-	 }
