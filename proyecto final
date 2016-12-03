@@ -1,0 +1,661 @@
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+
+/*
+ *  FUNCIONES AUXILIARES
+ */
+ bool esNumeroTelefonoCelularBoliviano(string cadena) {
+  bool correcto = true;
+  
+  for (int i = 0; i < (int)cadena.size(); i++) {
+    if (cadena[i] < '0' || cadena[i] > '9') {
+      correcto = false;
+    }
+  }
+  
+  if (cadena.size() != 8) {
+    correcto = false;
+  }
+  
+  return correcto;
+}
+
+int leerEnteroConValidacion() {
+  int x;
+  char temporal[257];
+  
+  while (true) {
+    gets(temporal);
+    
+    int nValoresLeidos = sscanf(temporal, "%d", &x);
+    if (nValoresLeidos == 1) {
+      break;
+    }
+    
+    cout << "  Error. Debe introducir un numero entero, intente otra vez: ";
+  }
+
+  return x;
+}
+
+
+/*
+ *  MANEJO DE FECHAS
+ */
+
+#define ANHO_BASE_DE_FECHAS 1900
+
+int diasEnMesAnhoNoBisiesto[13] = {
+  0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+};
+
+string nombreDeMes[13] = {
+  "",
+  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+};
+
+bool esBisiesto(int anho) {
+  // Bisiesto secular
+  if (anho % 100 == 0) {
+    return (anho % 400 == 0);
+  } 
+  
+  // Bisiesto no secular
+  return (anho % 4 == 0);
+}
+
+int diasEnAnho(int anho) {
+  if (esBisiesto(anho)) {
+    return 366;
+  }
+  return 365;
+}
+
+int diasEnMes(int mes, int anho) {
+  bool bisiesto = esBisiesto(anho);
+  if (bisiesto && mes == 2) {
+    return 29;
+  }
+  return diasEnMesAnhoNoBisiesto[mes];
+}
+
+int fechaAnum(int dia, int mes, int anho) {
+  bool fechaValida = true;
+  if (anho < ANHO_BASE_DE_FECHAS) {
+    fechaValida = false;
+  } else if (mes < 1 || mes > 12) {
+    fechaValida = false;
+  } else if (dia < 1 || dia > diasEnMes(mes, anho)) {
+    fechaValida = false;
+  }
+  
+  int numero = 0;
+  if (fechaValida) {
+    // Sumar los dias de los anhos pasados
+    for (int i = ANHO_BASE_DE_FECHAS; i < anho; i++) {
+      numero = numero + diasEnAnho(i);
+    }
+    
+    // Sumar los dias de lo meses pasados
+    for (int i = 1; i < mes; i++) {
+      numero = numero + diasEnMes(i, anho);
+    }
+    
+    // Sumar los dias pasados en este mes
+    numero = numero + dia;
+  }
+  return numero;
+}
+
+void numAfecha(int num, int &dia, int &mes, int &anho) {
+  anho = ANHO_BASE_DE_FECHAS;
+  mes = 1;
+  dia = 1;
+  
+  // Incrementar los anhos hasta no poder mas
+  while (fechaAnum(dia, mes, anho) + diasEnAnho(anho) <= num) {
+    anho = anho + 1;
+  }
+  
+  // Incrementar los meses hasta no poder mas
+  while (fechaAnum(dia, mes, anho) + diasEnMes(mes, anho) <= num) {
+    mes = mes + 1;
+  }
+  
+  // Incrementar los dias de acuerdo a la diferencia que quede
+  dia = dia + (num - fechaAnum(dia, mes, anho));
+}
+
+bool esFechaValida(int d, int m, int a) {
+  if (a < ANHO_BASE_DE_FECHAS) {
+    return false;
+  }
+  
+  if (m < 1 || m > 12) {
+    return false;
+  }
+  
+  if (d < 1 || d > diasEnMes(m, a)) {
+    return false;
+  }
+  
+  return true;
+}
+
+string obtenerReprFecha(int d, int m, int a) {
+  string resultado;
+  
+  // Dia
+  if (d < 10) {
+    resultado += "0";
+  }
+  resultado += to_string(d);
+  
+  // Mes
+  resultado += "/";
+  resultado += nombreDeMes[m];
+  
+  // Anho
+  resultado += "/";
+  resultado += to_string(a);
+  
+  return resultado;
+}
+
+string obtenerReprFechaNum(int num) {
+  if (num == 0) {
+    return "Sin Fecha";
+  }
+  
+  int d, m, a;
+  numAfecha(num, d, m, a);
+  return obtenerReprFecha(d, m, a);
+}
+
+bool estanRangosDeFechaNumSeparados(int rango1Ini, int rango1Fin, 
+  int rango2Ini, int rango2Fin) {
+  if (rango1Ini > rango2Fin || rango1Fin < rango2Ini) {
+    return true;
+  }
+  return false;
+}
+
+
+/*
+ *  MANEJO DE CUARTOS Y RESERVAS
+ */
+
+
+// Datos del cuarto
+#define MAX_N_CUARTOS 100
+int nCuartos;
+
+int cuarto_cantPersonas[MAX_N_CUARTOS];
+string cuarto_descripcionCamas[MAX_N_CUARTOS];
+float cuarto_precioPorDia[MAX_N_CUARTOS];
+
+// Datos de las reservas del cuarto
+#define MAX_N_RESERVAS 100
+int nReservas;
+
+string reserva_nombreHuesped[MAX_N_RESERVAS];
+string reserva_telefonoHuesped[MAX_N_RESERVAS];
+bool reserva_huespedPresente[MAX_N_RESERVAS];
+int reserva_nroCuarto[MAX_N_RESERVAS];
+int reserva_fechaNumInicioReserva[MAX_N_RESERVAS];
+int reserva_fechaNumFinReserva[MAX_N_RESERVAS];
+
+void iniciarCuartosYReservasVacios() {
+  nCuartos = 7;
+  
+  // Dos habitaciones simples, dos dobles, dos triples y una cuadruple
+  
+  cuarto_cantPersonas[0] = 1;
+  cuarto_descripcionCamas[0] = "Una cama de una plaza.";
+  cuarto_precioPorDia[0] = 100;
+  
+  cuarto_cantPersonas[1] = 1;
+  cuarto_descripcionCamas[1] = "Una cama de una plaza.";
+  cuarto_precioPorDia[1] = 100;
+  
+  cuarto_cantPersonas[2] = 2;
+  cuarto_descripcionCamas[2] = "Dos camas de una plaza.";
+  cuarto_precioPorDia[2] = 190;
+  
+  cuarto_cantPersonas[3] = 2;
+  cuarto_descripcionCamas[3] = "Una cama de dos plazas (matrimonial).";
+  cuarto_precioPorDia[3] = 190;
+  
+  cuarto_cantPersonas[4] = 3;
+  cuarto_descripcionCamas[4] = "Cama de dos plazas junto a cama de una plaza.";
+  cuarto_precioPorDia[4] = 280;
+  
+  cuarto_cantPersonas[5] = 3;
+  cuarto_descripcionCamas[5] = "Tres camas de una plaza.";
+  cuarto_precioPorDia[5] = 280;
+  
+  cuarto_cantPersonas[6] = 4;
+  cuarto_descripcionCamas[6] = "Una cama matrimonial con dos camas de una plaza.";
+  cuarto_precioPorDia[6] = 370;
+  
+  // Poner cantidad de reservas en vacio
+  
+  nReservas = 0;
+}
+
+bool estaCuartoLibre(int codigo) {
+  bool resultado = true;
+  for (int i = 0; i < nReservas; i++) {
+    if (reserva_nroCuarto[i] == codigo) {
+      resultado = false;
+      break;
+    }
+  }
+  return resultado;
+}
+
+bool estaCuartoReservado(int codigo) {
+  bool resultado = false;
+  for (int i = 0; i < nReservas; i++) {
+    if (reserva_nroCuarto[i] == codigo && reserva_huespedPresente[i] == false) {
+      resultado = true;
+      break;
+    }
+  }
+  return resultado;
+}
+
+bool estaCuartoOcupado(int codigo) {
+  bool resultado = false;
+  for (int i = 0; i < nReservas; i++) {
+    if (reserva_nroCuarto[i] == codigo && reserva_huespedPresente[i]) {
+      resultado = true;
+      break;
+    }
+  }
+  return resultado;
+}
+
+string obtenerEstadoHabitacion(int codigo) {
+  if (estaCuartoOcupado(codigo)) {
+    return "Esta ocupada / con reservas";
+  } else if (estaCuartoReservado(codigo)) {
+    return "Tiene reservas";
+  }
+  return "No tiene ninguna reserva";
+}
+
+void quitarReservaDeLista(int id) {
+  for (int i = id + 1; i < nReservas; i++) {
+    reserva_nroCuarto[i - 1] = reserva_nroCuarto[i];
+    reserva_nombreHuesped[i - 1] = reserva_nombreHuesped[i];
+    reserva_telefonoHuesped[i - 1] = reserva_telefonoHuesped[i];
+    reserva_fechaNumInicioReserva[i - 1] = reserva_fechaNumInicioReserva[i];
+    reserva_fechaNumFinReserva[i - 1] = reserva_fechaNumFinReserva[i];
+    reserva_huespedPresente[i - 1] = reserva_huespedPresente[i];
+  }
+  nReservas = nReservas - 1;
+}
+
+void mostrarReporteEstadoCuartos() {
+  int nLibres = 0, nOcupados = 0, nReservados = 0;
+  for (int i = 0; i < nCuartos; i++) {
+    if (estaCuartoOcupado(i)) {
+      nOcupados = nOcupados + 1;
+    } else if (estaCuartoReservado(i)) {
+      nReservados = nReservados + 1;
+    } else {
+      nLibres = nLibres + 1;
+    }
+  }
+  
+  // Detalle general
+  system("cls");
+  cout << "**************************" << endl;
+  cout << "ESTADO DE LAS HABITACIONES" << endl;
+  cout << "**************************" << endl;
+  cout << endl;
+  cout << "Cantidad de Habitaciones: " << nCuartos << endl;
+  cout << "# de Hab. Libres: " << nLibres << endl;
+  cout << "# de Hab. Reservadas: " << nOcupados << endl;
+  cout << "# de Hab. Ocupadas: " << nReservados << endl;
+  cout << endl << endl;
+  
+  // Detalle por habitacion
+  
+  for (int i = 0; i < nCuartos; i++) {
+    cout << "- Habitacion #" << (i + 1) << endl;
+    cout << "  Para: " << cuarto_cantPersonas[i] << " persona(s)" << endl;
+    cout << "  Descripcion: " << cuarto_descripcionCamas[i] << endl;
+    cout << "  Precio por Dia: " << cuarto_precioPorDia[i] << endl;
+    cout << "  Estado: " << obtenerEstadoHabitacion(i) << endl;
+    cout << endl << endl;
+  }
+  
+  // Pausa para observar
+  
+  system("pause");
+}
+
+void mostrarReserva(int id) {
+  cout << "Detalle de Reserva #" << (id + 1) << endl;
+  cout << "***************************" << endl;
+  cout << "Habitacion: " << (reserva_nroCuarto[id] + 1) << endl;
+  cout << "Nombre: " << reserva_nombreHuesped[id] << endl;
+  cout << "Telefono: " << reserva_telefonoHuesped[id] << endl;
+  
+  string fechaIni = obtenerReprFechaNum(reserva_fechaNumInicioReserva[id]);
+  string fechaFin = obtenerReprFechaNum(reserva_fechaNumFinReserva[id]);
+  cout << "Fecha de Llegada: " << fechaIni << endl;
+  cout << "Fecha de Partida: " << fechaFin << endl;
+  
+  cout << "Huesped llego al Hotel: ";
+  if (reserva_huespedPresente[id]) {
+    cout << "SI" << endl;
+  } else {
+    cout << "Todavia" << endl;
+  }
+  
+  cout << endl;
+}
+
+void mostrarListadoReservas() {
+  cout << "RESERVAS ACTUALES (" << nReservas << " en total)" << endl;
+  cout << endl;
+  for (int i = 0; i < nReservas; i++) {
+    mostrarReserva(i);
+  }
+}
+
+void mostrarListadoReservasConPausa() {
+  mostrarListadoReservas();
+  system("pause");
+}
+
+void menuRegistrarReserva() {
+  cout << "REGISTRO DE RESERVA" << endl;
+  
+  int nroCuarto;
+  cout << "Ingrese el # de habitacion: ";
+  do {
+    nroCuarto = leerEnteroConValidacion();
+    
+    if (nroCuarto < 1 || nroCuarto > nCuartos) {
+      cout << "  Error. El # de habitacion no es valido. Intente otra vez: ";
+      nroCuarto = 0;
+    }
+  } while (nroCuarto == 0);
+  
+  
+  string titular;
+  cout << "Ingrese el nombre completo del cliente: ";
+  do {
+    getline(cin, titular);
+    if (titular == "") {
+      cout << "  Error. El nombre del cliente no puede estar vacio.";
+      cout << " Intente otra vez: ";
+    }
+  } while (titular == "");
+  
+  
+  string telefono;
+  cout << "Ingrese el # de telefono del cliente: ";
+  do {
+    getline(cin, telefono);
+    if (!esNumeroTelefonoCelularBoliviano(telefono)) {
+      cout << "  Error. Debe introducir un celular boliviano. Intente otra vez: ";
+      telefono = "";
+    }
+  } while (telefono == "");
+  
+  
+  // Fecha esperada de llegada
+  
+  int d1, m1, a1, numFecha1 = 0;
+  cout << "Ingrese la fecha esperada de su llegada (dia mes anho): ";
+  do {
+    cin >> d1 >> m1 >> a1;
+    numFecha1 = fechaAnum(d1, m1, a1);
+    if (numFecha1 == 0) {
+      cout << "  Error. La fecha no es valida. Intente otra vez: ";
+    }
+  } while (numFecha1 == 0);
+  
+  cout << "  OK. Usted indico la fecha esperada de llegada ";
+  cout << obtenerReprFechaNum(numFecha1) << "." << endl;
+  
+  
+  // Fecha esperada de salida 
+  
+  int d2, m2, a2, numFecha2 = 0;
+  cout << "Ingrese la fecha esperada de su salida (dia mes anho): ";
+  do {
+    cin >> d2 >> m2 >> a2;
+    numFecha2 = fechaAnum(d2, m2, a2);
+    
+    if (numFecha2 == 0) {
+      cout << "  Error. La fecha no es valida. Intente otra vez: ";
+    } else if (numFecha2 <= numFecha1) {
+      cout << "  Error. ";
+      cout << "La fecha de salida tiene que ser posterior a la de llegada. ";
+      cout << "Intente otra vez: ";
+      numFecha2 = 0;
+    }
+  } while (numFecha2 == 0);
+  
+  cout << "  OK. Usted indico la fecha esperada de salida ";
+  cout << obtenerReprFechaNum(numFecha2) << "." << endl;
+  cout << endl;
+  
+  // Verificar que la reserva no se cruce con otras
+  
+  bool reservaCruzada = false;
+  for (int i = 0; i < nReservas; i++) {
+    if (reserva_nroCuarto[i] == nroCuarto) {
+      int numFecha3 = reserva_fechaNumInicioReserva[i];
+      int numFecha4 = reserva_fechaNumFinReserva[i];
+      if (!estanRangosDeFechaNumSeparados(numFecha1, numFecha2, numFecha3, numFecha4)) {
+        cout << "ERROR. El rango de fechas a reservar se cruza con una reserva";
+        cout << " existente, a nombre de la persona:" << endl;
+        cout << "  " << reserva_nombreHuesped[i] << "." << endl;
+        
+        cout << "Dicha reserva comprende desde el ";
+        cout << obtenerReprFechaNum(numFecha3) << " hasta el ";
+        cout << obtenerReprFechaNum(numFecha4) << "." << endl;
+        
+        cout << endl;
+        
+        cout << "La reserva NO se llevara a cabo. Intente otra vez." << endl;
+        
+        reservaCruzada = true;
+        break;
+      }
+    }
+  }
+  
+  // Realizar reserva si todo fue bien
+  
+  if (reservaCruzada == false) {
+    reserva_nroCuarto[nReservas] = nroCuarto - 1;
+    reserva_nombreHuesped[nReservas] = titular;
+    reserva_telefonoHuesped[nReservas] = telefono;
+    reserva_fechaNumInicioReserva[nReservas] = numFecha1;
+    reserva_fechaNumFinReserva[nReservas] = numFecha2;
+    reserva_huespedPresente[nReservas] = false;
+    
+    nReservas += 1;
+    cout << "La reserva fue realiza CORRECTAMENTE." << endl;
+  }
+  
+  cout << endl;
+  system("pause");
+}
+
+int preguntarPorNumReserva() {
+  mostrarListadoReservas();
+  
+  int opcion;
+  cout << "Introduzca el numero de reserva: ";
+  opcion = leerEnteroConValidacion();
+  cout << endl;
+  
+  if (opcion < 1 || opcion > nReservas) {
+    opcion = 0;
+  }
+  
+  return opcion;
+}
+
+void menuAnularReserva() {
+  cout << "** ANULAR RESERVA **" << endl;
+  cout << "********************" << endl;
+  
+  int nroReserva = preguntarPorNumReserva();
+  
+  if (nroReserva == 0) {
+    cout << "  El # de reserva dado NO es valido." << endl;
+    cout << "  Cancelando operacion..." << endl;
+  } else {
+    quitarReservaDeLista(nroReserva - 1);
+    cout << "La reserva se anulo CORRECTAMENTE." << endl;
+  }
+  
+  cout << endl;
+  system("pause");
+}
+
+void menuCheckIn() {
+  cout << "** REGISTRO DE LLEGADA (CHECK-IN) **" << endl;
+  cout << "************************************" << endl;
+  
+  int nroReserva = preguntarPorNumReserva();
+  
+  if (nroReserva == 0) {
+    cout << "  El # de reserva dado NO es valido." << endl;
+    cout << "  Cancelando operacion..." << endl;
+  } else if (reserva_huespedPresente[nroReserva - 1] == true) {
+    cout << "  Error. La reserva elegida ya tuvo un check-in realizado." << endl;
+    cout << "  Cancelando operacion..." << endl;
+  } else {
+    reserva_huespedPresente[nroReserva - 1] = true;
+    cout << "Se registro la llegada CORRECTAMENTE." << endl;
+  }
+  
+  cout << endl;
+  system("pause");
+}
+
+void menuCheckOut() {
+  cout << "** REGISTRO DE SALIDA (CHECK-OUT) **" << endl;
+  cout << "************************************" << endl;
+  
+  int nroReserva = preguntarPorNumReserva();
+  
+  if (nroReserva == 0) {
+    cout << "  El # de reserva dado NO es valido." << endl;
+    cout << "  Cancelando operacion..." << endl;
+  } else if (reserva_huespedPresente[nroReserva - 1] == false) {
+    cout << "  Error. La reserva elegida no tiene check-in realizado." << endl;
+    cout << "  Cancelando operacion..." << endl;
+  } else {
+    int id = nroReserva - 1;
+    int numFecha1 = reserva_fechaNumInicioReserva[id];
+    int numFecha2 = reserva_fechaNumFinReserva[id];
+    int diasEstadia = numFecha2 - numFecha1;
+    int idHab = reserva_nroCuarto[id];
+    
+    cout << "El cliente:" << endl;;
+    cout << "  " << reserva_nombreHuesped[id] << endl;
+    cout << "se hospedo por un total de " << diasEstadia << " dia(s)." << endl;
+    cout << "El precio de la habitacion por dia es de ";
+    cout << cuarto_precioPorDia[idHab] << " Bs." << endl;
+    cout << endl;
+    
+    // Costo de Estadia
+    
+    float costoEstadia = cuarto_precioPorDia[idHab] * diasEstadia;
+    cout << "El costo total de la estadia es de " << costoEstadia << " Bs.";
+    cout << endl << endl;
+    
+    // Efectivo
+    
+    float efectivo;
+    cout << "Dinero efectivo entregado por el cliente: ";
+    do {
+      cin >> efectivo;
+      if (efectivo < costoEstadia) {
+        cout << "  Error. El dinero entregado no cubre la estadia. ";
+        cout << "Intente otra vez: ";
+      }
+    } while (efectivo < costoEstadia);
+    
+    // Cambio
+    
+    float cambio;
+    cambio = efectivo - costoEstadia;
+    cout << "Cambio a entregar al cliente: " << cambio << endl;
+    
+    quitarReservaDeLista(id);
+    
+    cout << endl;
+    cout << "Se registro la salida CORRECTAMENTE." << endl;
+  }
+  
+  cout << endl;
+  system("pause");
+}
+
+/*
+ *  MENUS
+ */
+
+int main() {
+  iniciarCuartosYReservasVacios();
+  
+  int opcion;
+  do {
+    system("cls");
+    cout << "------------------" << endl;
+    cout << "HOTEL 'DREAMS'" << endl;
+    cout << "------------------" << endl;
+    cout << "1. Reporte del Estado de las Habitaciones" << endl;
+    cout << "2. Listado de Reservas Actuales" << endl;
+    cout << "3. Registrar una Reserva" << endl;
+    cout << "4. Anular una Reserva" << endl;
+    cout << "5. Registrar Llegada de un Cliente (Check-in)" << endl;
+    cout << "6. Registrar Salida de un Cliente (Check-out)" << endl;
+    cout << "7. Salir" << endl;
+    cout << endl;
+    cout << "Elija una Opcion: " << endl;
+    
+    cin >> opcion;
+    cin.ignore(1);
+    cout << endl;
+    
+    if (opcion == 1) {
+      mostrarReporteEstadoCuartos();
+    } else if (opcion == 2) {
+      mostrarListadoReservasConPausa();
+    } else if (opcion == 3) {
+      menuRegistrarReserva();
+    } else if (opcion == 4) {
+      menuAnularReserva();
+    } else if (opcion == 5) {
+      menuCheckIn();
+    } else if (opcion == 6) {
+      menuCheckOut();
+    } else if (opcion != 7) {
+      cout << "La opcion no es valida.";
+    }
+    
+  } while (opcion != 7);
+  
+  cout << "Hasta la proxima." << endl;
+  
+  return 0;
+}
+
