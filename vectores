@@ -1,0 +1,31 @@
+// vector.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#define	NMAX 1000
+void LEER_VEC(int*V, int n);
+int SUMA_VEC(int*X, int n);
+ int main (void)
+ {int N, R, A[NMAX];
+ printf("\n Tamaño del vector: ");
+ scanf("%d",&N);//tamaño del vector
+ LEER_VEC(A,N);//leer el vector
+ R=SUMA_VEC(A,N);//sumatoria
+ printf("\n la suma es: %d \n ",R);
+ return 0;
+ }
+ //SUBPROGRAMAS
+ void LEER_VEC(int*V, int n)
+ {int i;
+ for(i=0;i<n;i++)
+ {printf("V[%d]: ",i);
+ scanf("%d", &V[i]);}
+ }
+
+ int SUMA_VEC(int*X, int n)
+ {int i, S=0;
+ for(i=0; i<n; i++)
+ {S=S+X[i];}
+ return S;
+ }
+	
