@@ -1,0 +1,94 @@
+#include "stdafx.h"
+#include <stdio.h>
+#include <conio.h>
+#include <iostream>
+using namespace std;
+
+int leerIntNatural();
+int menuPrincipal();
+float caloriasPorHora(int energiaJ);
+
+void main() {
+
+	int sigue;
+
+	do {
+		// valor de 1 significa que sigue
+		// valor de 0 significa que frena el programa.
+		sigue = menuPrincipal();
+		printf("\n\n\n");
+	} while(sigue == 1);
+
+	getch();
+}
+
+// ESTE MENU DEVUELVE UN ENTERO QUE INDICA SI EL USUARIO QUIERE
+// TERMINAR EL PROGRAMA O SI SEGUIRA INGRESANDO AL MENU.
+int menuPrincipal() {
+	printf("*****     MENU     *****\n");
+	printf("1. Calcular calorias quemadas en una hora\n");
+	printf("2. Opcion 2\n");
+	printf("3. Opcion 3\n");
+	printf("4. Salir del Programa\n");
+	printf("Ingrese la opcion: ");
+
+	int op = leerIntNatural(), x;
+	float kcal;
+
+	switch(op) {
+		case 1:
+			printf("Ingrese una cantidad positiva de energia: ");
+			x = leerIntNatural();
+			if(x > 0) {
+				kcal = caloriasPorHora(x);
+				printf("Se usarian %f Kilocalorias en una hora de repeticiones\n", kcal);
+			}
+			else {
+				printf("Valor de energia no valido.\n");
+			}
+			break;
+		case 2:
+			cout << "Opcion 2\n";
+			break;
+		case 3:
+			cout << "Opcion 3\n";
+			break;
+		case 4:
+			printf("Saliendo del programa...\n");
+			break;
+		default:
+			printf("Ingrese una opcion valida por favor.\n");
+			break;
+	}
+
+	if(op == 4)
+		return 0;
+	else
+		return 1;
+}
+
+// FUNCION QUE LEE UN ENTERO IGUAL O MAYOR A 0
+// ESTA FUNCION SE ASEGURA DE QUE, SIN IMPORTAR
+// LO INTRODUZCA EL USUARIO, EL PROGRAMA SEGUIRA CORRIENDO.
+int leerIntNatural() {
+	char cad[256];
+	int i, n = 0;
+	
+	// ASEGURANDO LA LECTURA DE UNA CADENA NO VACIA
+	do {
+		// funcion para leer una linea de caracteres, se guarda en cad
+		// cad funciona exactamente igual que un vector!
+		gets(cad);
+		i = 0;
+		// saltara espacios en blanco
+		while(cad[i] == ' ') {
+			i = i + 1;
+		}
+	} while(cad[i] == '\0');
+
+	// lectura principal
+	// cad[i] != '\0' significa que no quiero que ningun caracter
+	// sea el de fin de cadena. el fin de una cadena siempre esta
+	// simbolizado por ese caracter, entonces si llego ahi, termine.
+	while(i < 256 && cad[i] != '\0') {
+		if(cad[i] < '0' || cad[i] > '9') {
