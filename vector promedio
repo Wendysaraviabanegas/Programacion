@@ -1,0 +1,38 @@
+#include "stdafx.h"
+#define NMAX 1000
+void leervec(float*V, int N);
+float Promedio(float*V, int N);
+void IMPRIMIR_VEC(int*V, int N);
+int main(void)
+{int N;float A[NMAX], X;
+scanf("%d", &N);
+leervec(A,N);
+X=Promedio(A,N);
+IMPRIMIR_VEC(A,N);
+printf("\n PROMEDIO ES: %f"),X;
+return 0;
+}
+
+void leervec(float*V, int N)
+{int i;
+ for(i=0;i<N;i++)
+{printf("V[%d]: ",i);
+ scanf("%f", &V[i]);}
+ }
+
+
+float Promedio(float*V, int N)
+{int i; float P;
+	P=0;
+	for(i=0;i<N;i++)
+	{P=P+V[i];}
+	P=P/N;
+	return P;
+}
+void IMPRIMIR_VEC(float*V, int N)
+{
+	int i;
+	for(i=0;i<N;i++)
+	{printf("\n %f",V[i]);
+	}
+}
