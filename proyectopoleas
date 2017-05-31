@@ -1,0 +1,115 @@
+// ppp.cpp : Defines the entry point for the console application.
+//
+#include "stdafx.h"
+#include <conio.h>
+#include <iostream>
+using namespace std;
+
+int leerIntNatural();
+int menuPrincipal();
+float caloriasPorHora(int energiaJ);
+float traslaciondepolea(float T1, float T2, float P, float Ma);
+void main() {
+
+	int sigue;
+
+	do {
+		// valor de 1 significa que sigue
+		// valor de 0 significa que frena el programa.
+		sigue = menuPrincipal();
+		cout<<("\n\n\n");
+	} while(sigue == 1);
+
+	_getch();
+}
+int menuPrincipal() {
+	cout<<"*****     MENU     *****\n";
+	cout<<"1. Calcular calorias quemadas en una hora\n";
+	cout<<"2. calcular la fuerza 2\n";
+	cout<<"3. Salir del Programa\n";
+	cout<<"Ingrese la opcion: ";
+
+	int op = leerIntNatural(), x;
+	float kcal;
+
+	switch(op) {
+		case 1:
+			cout<<"Ingrese una cantidad positiva de energia: ";
+			x = leerIntNatural();
+			if(x > 0) {
+				kcal = caloriasPorHora(x);
+				cout<<"Se quemarian:"<< kcal<< "Kilocalorias en una hora de repeticiones \n";
+			}
+			else {
+				cout<<"Valor de energia no valido.\n";
+			}
+			break;
+		case 2:
+			cout << "calcular la fuerza 2\n";
+			float traslaciondepolea();
+			break;
+		case 3:
+			cout<<"Saliendo del programa...\n";
+			break;
+		default:
+			cout<<"Ingrese una opcion valida por favor.\n";
+			break;
+	}
+
+	if(op == 3)
+		return 0;
+	else
+		return 1;
+}
+
+int leerIntNatural() {
+	char cad[256];
+	int i, n = 0;
+	
+	do {
+		
+		gets(cad);
+		i = 0;
+	
+		while(cad[i] == ' ') {
+			i = i + 1;
+		}
+	} while(cad[i] == '\0');
+
+	
+	while(i < 256 && cad[i] != '\0') {
+		if(cad[i] < '0' || cad[i] > '9') {
+			
+			return -1;
+		}
+
+		n = (n * 10) + (cad[i] - '0');
+		if(n < 0) {
+			return -1;
+		}
+		i = i + 1;
+	}
+	return n;
+}
+
+float caloriasPorHora(int energiaJ) {
+
+	float energiaKcal, kcalHora;
+	energiaKcal = energiaJ * 0.000239;
+	int repeticiones;
+	do {
+		printf("Cuantas repeticiones hace por minuto? ");
+		repeticiones = leerIntNatural();
+		if(repeticiones < 1) {
+			printf("Ingrese un numero mayor o igual a 1");
+		}
+	} while(repeticiones < 1);
+
+	kcalHora = repeticiones * energiaKcal * 60;
+	return kcalHora;
+}
+float traslaciondepolea(float T1, float T2, float P, float Ma)
+{
+	float g=9.8665, a=0, f;
+return f;
+}
