@@ -108,8 +108,8 @@ float caloriasPorHora(int energiaJ) {
 	kcalHora = repeticiones * energiaKcal * 60;
 	return kcalHora;
 }
-float traslaciondepolea(float T1, float T2, float P, float Ma)
-{
-	float g=9.8665, a=0, f;
-return f;
+float poleas2( float M, float T1, float T2, float P)
+{int a=0, g=9.8665,f;
+	f=P/2;
+	return f;
 }
